@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordExpert - Login</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">
+            <span class="logo-text">WordExpert</span>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="login-container">
+            <h1 class="login-title">Sign In</h1>
+            <!-- Removed action attribute to handle login via JS -->
+            <form class="login-form" id="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="login-submit-btn">Sign In</button>
+            </form>
+        </div>
+    </main>
+    <!-- Include dependencies -->
+    <script src="static/api.js"></script>
+    <script src="static/auth.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function(e){
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+            submitBtn.textContent = 'Signing in...';
+            submitBtn.disabled = true;
+
+            try {
+                await Api.loginUser(username, password);
+                window.location.href = "index.html";
+            } catch (error) {
+                alert(error.message || 'Login failed. Please try again.');
+            } finally {
+                // Reset button state
+                submitBtn.textContent = originalBtnText;
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
