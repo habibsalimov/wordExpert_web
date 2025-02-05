@@ -3,16 +3,24 @@ const axios = require('axios');
 const translate = async (req, res) => {
     try {
         const { text, sourceLang, targetLang, model } = req.body;
+        const authToken = req.headers.authorization;
+
+        if (!authToken) {
+            return res.status(401).json({
+                success: false,
+                error: 'Authorization token required'
+            });
+        }
 
         const response = await axios.post(process.env.TRANSLATION_API_URL, {
-            text,
+            content: text,  // Changed from text to content
             source_lang: sourceLang,
             target_lang: targetLang,
             model: model || 'tilmoch'
         }, {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': process.env.TRANSLATION_API_KEY
+                'Authorization': authToken
             }
         });
 

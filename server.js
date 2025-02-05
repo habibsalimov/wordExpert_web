@@ -13,6 +13,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Token verification middleware
+app.use('/api/translate', (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({
+            error: 'Valid authorization token required'
+        });
+    }
+    next();
+});
+
 // Routes
 app.use('/api', routes);
 

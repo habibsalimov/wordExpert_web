@@ -18,8 +18,8 @@
             <h1 class="login-title">Sign In</h1>
             <form class="login-form" id="login-form">
                 <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
+                    <label for="username">Email</label>
+                    <input type="text" id="email" name="email" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
@@ -33,7 +33,7 @@
     <script>
         document.getElementById('login-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
             
             // Show loading state
@@ -43,7 +43,7 @@
             submitBtn.disabled = true;
 
             try {
-                const response = await Auth.loginUser(username, password);
+                const response = await Auth.loginUser(email, password);
                 window.location.href = "index.html";
             } catch (error) {
                 alert(error.message || 'Login failed. Please try again.');

@@ -2,10 +2,10 @@ const axios = require('axios');
 
 const login = async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
         const response = await axios.post(process.env.AUTH_API_URL, {
-            username,
+            email,
             password
         }, {
             headers: {

@@ -6,6 +6,17 @@ class MessageHandler {
         this.headers = {
             'Content-Type': 'application/json',
         };
+        // Add auth token if exists
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            this.headers['Authorization'] = `Bearer ${token}`;
+        }
+    }
+
+    updateAuthToken(token) {
+        if (token) {
+            this.headers['Authorization'] = `Bearer ${token}`;
+        }
     }
 
     async sendMessage(message) {
@@ -14,7 +25,7 @@ class MessageHandler {
                 method: 'POST',
                 headers: this.headers,
                 body: JSON.stringify({
-                    text: message.text,
+                    text: message.text,         // Keep as 'text' here since that's what the server expects
                     sourceLang: message.sourceLang,
                     targetLang: message.targetLang,
                     model: message.model || 'tilmoch'
@@ -46,14 +57,14 @@ class MessageHandler {
     }
 }
 class Auth {
-    static async loginUser(username, password) {
+    static async loginUser(email, password) {
         try {
             const response = await fetch('http://localhost:5000/api/token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ email, password })
             });
 
             if (!response.ok) {
@@ -62,6 +73,9 @@ class Auth {
             }
 
             const data = await response.json();
+            // Store the tokens
+            localStorage.setItem('access_token', data.access);
+            localStorage.setItem('refresh_token', data.refresh);
             return data;
         } catch (error) {
             console.error('Login error:', error);
@@ -92,6 +106,8 @@ class Auth {
     }
 
     static logout() {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
         window.location.href = 'login.html';
     }
 }
