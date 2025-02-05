@@ -132,15 +132,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add new function for text improvement
     async function improveText() {
-        const textToImprove = targetTextarea.value.trim();
-        if (!textToImprove) return;
+        const sourceText = sourceTextarea.value.trim();
+        if (!sourceText) return;
+
 
         try {
             targetTextarea.value = 'Sayqallanmoqda...';
             targetTextarea.classList.add('translating');
             
             const result = await messageHandler.sendMessage({
-                text: textToImprove,
+                text: sourceText,
                 sourceLang: targetLang,  // Use target language as source
                 targetLang: targetLang,  // Keep same target language
                 model: 'sayqalchi'
