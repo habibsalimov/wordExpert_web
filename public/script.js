@@ -7,7 +7,61 @@ document.addEventListener('DOMContentLoaded', () => {
     const sourceLangButton = document.querySelector('.language-selector:first-child .language-button');
     const targetLangButton = document.querySelector('.language-selector:last-child .language-button');
     const charCounter = document.querySelector('.char-counter');
+    const backButton = document.querySelector('.back-button');
+    const forwardButton = document.querySelector('.forward-button');
+    const historyButtons = document.querySelector('.history-buttons');
     const MAX_CHARS = 5000;
+
+    // Çeviri geçmişi için değişkenler
+    let translationHistory = [];
+    let currentHistoryIndex = -1;
+    let lastNormalTranslation = ''; // Normal çevirinin son halini tutmak için
+
+    // Geçmiş yönetimi fonksiyonları
+    function addToHistory(translation) {
+        // Eğer geçmişte ileri gitmiş ve yeni bir iyileştirme yapılıyorsa
+        // ileri kısmındaki geçmişi temizle
+        if (currentHistoryIndex < translationHistory.length - 1) {
+            translationHistory = translationHistory.slice(0, currentHistoryIndex + 1);
+        }
+        
+        translationHistory.push(translation);
+        currentHistoryIndex = translationHistory.length - 1;
+        updateHistoryButtons();
+    }
+
+    function updateHistoryButtons() {
+        backButton.disabled = currentHistoryIndex <= 0;
+        forwardButton.disabled = currentHistoryIndex >= translationHistory.length - 1;
+    }
+
+    function showHistoryButtons() {
+        historyButtons.classList.add('visible');
+    }
+
+    function hideHistoryButtons() {
+        historyButtons.classList.remove('visible');
+    }
+
+    function goBack() {
+        if (currentHistoryIndex > 0) {
+            currentHistoryIndex--;
+            targetTextarea.value = translationHistory[currentHistoryIndex];
+            updateHistoryButtons();
+        }
+    }
+
+    function goForward() {
+        if (currentHistoryIndex < translationHistory.length - 1) {
+            currentHistoryIndex++;
+            targetTextarea.value = translationHistory[currentHistoryIndex];
+            updateHistoryButtons();
+        }
+    }
+
+    // Event listeners for history buttons
+    backButton.addEventListener('click', goBack);
+    forwardButton.addEventListener('click', goForward);
 
     // Update language buttons with supported languages
     const languages = {
@@ -36,6 +90,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const sourceText = sourceTextarea.value;
         sourceTextarea.value = targetTextarea.value;
         targetTextarea.value = sourceText;
+        
+        // Dil değiştiğinde geçmişi temizle ve butonları gizle
+        translationHistory = [];
+        currentHistoryIndex = -1;
+        hideHistoryButtons();
         
         if (sourceTextarea.value) {
             translateText();
@@ -106,7 +165,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Metin çevirisi işlevi
     async function translateText() {
         const sourceText = sourceTextarea.value.trim();
-        if (!sourceText) return;
+        if (!sourceText) {
+            targetTextarea.value = "";
+            lastNormalTranslation = ""; // Son çeviriyi temizle
+            return;
+        }
 
         try {
             targetTextarea.value = 'Tarjima qilinmoqda...';
@@ -123,7 +186,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(result.error);
             }
 
-            targetTextarea.value = modifyText(result.translation);
+            const translation = modifyText(result.translation);
+            targetTextarea.value = translation;
+            lastNormalTranslation = translation; // Son normal çeviriyi kaydet
+            
+            // Normal çeviride geçmişi sıfırla ve butonları gizle
+            translationHistory = [];
+            currentHistoryIndex = -1;
+            hideHistoryButtons();
+            updateHistoryButtons();
         } catch (error) {
             console.error('Translation error:', error);
             targetTextarea.value = 'Tarjima vaqtida xatolik yuz berdi.\n' + error.message;
@@ -135,8 +206,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add new function for text improvement
     async function improveText() {
         const sourceText = sourceTextarea.value.trim();
-        if (!sourceText) return;
-
+        if (!sourceText) {
+            targetTextarea.value = "";
+            return;
+        }
 
         try {
             targetTextarea.value = 'Sayqallanmoqda...';
@@ -144,8 +217,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const result = await messageHandler.sendMessage({
                 text: sourceText,
-                sourceLang: targetLang,  // Use target language as source
-                targetLang: targetLang,  // Keep same target language
+                sourceLang: targetLang,
+                targetLang: targetLang,
                 model: 'sayqalchi'
             });
 
@@ -153,7 +226,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(result.error);
             }
 
-            targetTextarea.value = modifyText(result.translation);
+            const translation = modifyText(result.translation);
+            
+            // İlk sayqallash işleminde, normal çeviriyi geçmişe ekle
+            if (translationHistory.length === 0 && lastNormalTranslation) {
+                addToHistory(lastNormalTranslation);
+            }
+            
+            // Sayqallash sonucunu geçmişe ekle
+            addToHistory(translation);
+            targetTextarea.value = translation;
+            showHistoryButtons(); // Sayqallash sonrası butonları göster
         } catch (error) {
             console.error('Improvement error:', error);
             targetTextarea.value = 'Sayqallash vaqtida xatolik yuz berdi.\n' + error.message;
