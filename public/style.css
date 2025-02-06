@@ -225,6 +225,7 @@ body {
     width: 14px;
     height: 14px;
     opacity: 0.6;
+    transform: rotate(90deg);
 }
 
 .swap-button:hover svg {
@@ -241,6 +242,7 @@ body {
     flex: 1;
     padding: 2rem; /* Increased from 1.5rem */
     border-right: 1px solid var(--border-color);
+    position: relative;  /* Add this */
 }
 
 .editor:last-child {
@@ -281,7 +283,7 @@ body {
     transition: all 0.2s ease;
     position: absolute;
     bottom: 1rem;
-    right: 1rem;
+    left: 37rem;  /* Changed from right: 1rem to left: 1rem */
 }
 
 .improve-button:hover {
@@ -446,4 +448,50 @@ input:checked + .slider:before {
         border-right: none;
         border-bottom: 1px solid var(--border-color);
     }
+}
+
+/* Add these new styles at the end of the file */
+.char-counter {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--secondary-text);
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.char-counter.near-limit {
+    color: #f59e0b;
+}
+
+.char-counter.at-limit {
+    color: #dc2626;
+}
+
+.copy-button {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.75rem;  /* Increased from 0.5rem */
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: var(--secondary-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.copy-button:hover {
+    background-color: var(--hover-blue);
+    color: var(--primary-blue);
+}
+
+.copy-button svg {
+    width: 20px;     /* Increased from 16px */
+    height: 20px;    /* Increased from 16px */
 }

@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const improveButton = document.querySelector('.improve-button');
     const sourceLangButton = document.querySelector('.language-selector:first-child .language-button');
     const targetLangButton = document.querySelector('.language-selector:last-child .language-button');
+    const charCounter = document.querySelector('.char-counter');
+    const MAX_CHARS = 5000;
 
     // Update language buttons with supported languages
     const languages = {
@@ -200,10 +202,56 @@ document.addEventListener('DOMContentLoaded', () => {
     sourceTextarea.addEventListener('input', debounce(translateText, 500));
     improveButton.addEventListener('click', improveText);
 
+    // Add new event listener for character counting
+    sourceTextarea.addEventListener('input', () => {
+        updateCharCounter();
+    });
+
+    // Add copy button functionality
+    const copyButton = document.querySelector('.copy-button');
+    
+    copyButton.addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(targetTextarea.value);
+            
+            // Change to checkmark icon temporarily
+            const originalHTML = copyButton.innerHTML;
+            copyButton.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M20 6L9 17l-5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            `;
+            
+            // Revert back to copy icon after 1.5 seconds
+            setTimeout(() => {
+                copyButton.innerHTML = originalHTML;
+            }, 1500);
+            
+        } catch (err) {
+            console.error('Failed to copy text:', err);
+        }
+    });
+
     // Logout handler
     document.getElementById('logoutBtn').addEventListener('click', () => {
         Auth.logout();
     });
+
+    function updateCharCounter() {
+        const currentLength = sourceTextarea.value.length;
+        charCounter.textContent = `${currentLength} / ${MAX_CHARS}`;
+        
+        if (currentLength >= MAX_CHARS) {
+            charCounter.classList.add('at-limit');
+            charCounter.classList.remove('near-limit');
+            sourceTextarea.value = sourceTextarea.value.slice(0, MAX_CHARS);
+        } else if (currentLength >= MAX_CHARS * 0.9) {
+            charCounter.classList.add('near-limit');
+            charCounter.classList.remove('at-limit');
+        } else {
+            charCounter.classList.remove('near-limit', 'at-limit');
+        }
+    }
 });
 
 // Debounce yardımcı fonksiyonu
