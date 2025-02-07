@@ -288,10 +288,12 @@ body {
     transition: all 0.2s ease;
     position: absolute;
     bottom: 1.5rem;
-    left: 18%;
+    left: 17%;
     transform: translateX(-50%);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     z-index: 10;
+    width: fit-content;
+    margin: 0 auto;
 }
 
 .improve-button:hover {
@@ -307,6 +309,7 @@ body {
     width: 16px;
     height: 16px;
     color: #92400e;
+    flex-shrink: 0;
 }
 
 .glossary-switch {
@@ -463,6 +466,7 @@ input:checked + .slider:before {
     .editor {
         min-height: 300px;
         height: auto;
+        padding: 1.5rem;
     }
     .editor textarea {
         min-height: 250px;
@@ -473,12 +477,22 @@ input:checked + .slider:before {
         border-bottom: 1px solid var(--border-color);
     }
     .improve-button {
-        position: absolute;
-        bottom: 1.5rem;
+        position: fixed;
+        bottom: 2rem;
         left: 50%;
         transform: translateX(-50%);
-        padding: 0.875rem 2rem;
+        padding: 1rem 2rem;
         font-size: 1rem;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+}
+
+@media (max-width: 480px) {
+    .improve-button {
+        width: calc(100% - 2rem);
+        margin: 0 1rem;
+        border-radius: 1rem;
     }
 }
 

@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <script>
+        // Sayfa yüklenmeden önce auth kontrolü
+        if (!localStorage.getItem('access_token')) {
+            window.location.href = 'login.html';
+        }
+    </script>
     <header class="main-header">
         <div class="logo">
             <span class="logo-text">WordExpert</span>
