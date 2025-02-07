@@ -335,6 +335,34 @@ document.addEventListener('DOMContentLoaded', () => {
             charCounter.classList.remove('near-limit', 'at-limit');
         }
     }
+
+    // Textarea'ların otomatik yükseklik ayarı için fonksiyon
+    function autoResizeTextarea(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    // Her iki textarea için olay dinleyicileri
+    const textareas = document.querySelectorAll('.editor textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', () => {
+            autoResizeTextarea(textarea);
+        });
+        
+        // Sayfa yüklendiğinde de çalıştır
+        autoResizeTextarea(textarea);
+    });
+
+    // Çeviri yapıldığında da textarea'yı yeniden boyutlandır
+    const observer = new MutationObserver(() => {
+        autoResizeTextarea(targetTextarea);
+    });
+    
+    observer.observe(targetTextarea, {
+        childList: true,
+        characterData: true,
+        subtree: true
+    });
 });
 
 // Debounce yardımcı fonksiyonu

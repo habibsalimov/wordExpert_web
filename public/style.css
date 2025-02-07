@@ -234,15 +234,18 @@ body {
 
 .translation-area {
     display: flex;
-    min-height: 450px; /* Increased from 400px */
+    min-height: 450px;
+    height: auto;
     border: 1px solid var(--border-color);
 }
 
 .editor {
     flex: 1;
-    padding: 2rem; /* Increased from 1.5rem */
+    padding: 2rem;
     border-right: 1px solid var(--border-color);
-    position: relative;  /* Add this */
+    position: relative;
+    min-height: 450px;
+    height: auto;
 }
 
 .editor:last-child {
@@ -251,13 +254,15 @@ body {
 
 .editor textarea {
     width: 100%;
-    height: 100%;
+    min-height: 350px;
+    height: auto;
     border: none;
     resize: none;
-    font-size: 1.125rem; /* Increased from 1rem */
-    line-height: 1.6; /* Increased from 1.5 */
+    font-size: 1.125rem;
+    line-height: 1.6;
     outline: none;
     color: var(--text-color);
+    overflow: hidden;
 }
 
 .editor textarea::placeholder {
@@ -282,15 +287,25 @@ body {
     gap: 0.5rem;
     transition: all 0.2s ease;
     position: absolute;
-    bottom: 1rem;
-    left: 37rem;  /* Changed from right: 1rem to left: 1rem */
+    bottom: 1.5rem;
+    left: 18%;
+    transform: translateX(-50%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
 }
 
 .improve-button:hover {
     background: #fef08a;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.improve-button:active {
+    transform: translateX(-50%) scale(0.98);
 }
 
 .improve-button svg {
+    width: 16px;
+    height: 16px;
     color: #92400e;
 }
 
@@ -443,10 +458,27 @@ input:checked + .slider:before {
 @media (max-width: 768px) {
     .translation-area {
         flex-direction: column;
+        height: auto;
+    }
+    .editor {
+        min-height: 300px;
+        height: auto;
+    }
+    .editor textarea {
+        min-height: 250px;
+        height: auto;
     }
     .editor:not(:last-child) {
         border-right: none;
         border-bottom: 1px solid var(--border-color);
+    }
+    .improve-button {
+        position: absolute;
+        bottom: 1.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
     }
 }
 
