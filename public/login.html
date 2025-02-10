@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WordExpert - Login</title>
+    <title>Login - WordExpert</title>
     <link rel="stylesheet" href="login.css">
+    <script>
+        // Eğer zaten giriş yapılmışsa ana sayfaya yönlendir
+        if (localStorage.getItem('access_token')) {
+            window.location.href = 'index.html';
+        }
+    </script>
 </head>
 <body>
     <header class="main-header">
