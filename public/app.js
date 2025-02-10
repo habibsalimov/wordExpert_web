@@ -110,4 +110,42 @@ class Auth {
         localStorage.removeItem('refresh_token');
         window.location.href = 'login.html';
     }
+
+    static async checkTokenValidity() {
+        const token = localStorage.getItem('access_token');
+        if (!token) return false;
+
+        try {
+            const response = await fetch('http://localhost:5001/api/translate', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    text: '',
+                    sourceLang: 'eng_Latn',
+                    targetLang: 'uzn_Latn'
+                })
+            });
+
+            if (response.status === 401) {
+                localStorage.clear();
+                return false;
+            }
+
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    static async guardRoute() {
+        if (!window.location.pathname.includes('login.html')) {
+            const isValid = await this.checkTokenValidity();
+            if (!isValid) {
+                window.location.href = 'login.html';
+            }
+        }
+    }
 }

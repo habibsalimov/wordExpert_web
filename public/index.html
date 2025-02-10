@@ -5,43 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WordExpert</title>
     <link rel="stylesheet" href="style.css">
-    <script>
-        // Sıkı auth kontrolü
-        function checkAuth() {
-            const token = localStorage.getItem('access_token');
-            if (!token) {
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            // Token geçerliliğini kontrol et
-            fetch('http://localhost:5001/api/verify-token', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Token invalid');
-                }
-                return response.json();
-            })
-            .catch(error => {
-                console.error('Auth error:', error);
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('refresh_token');
-                window.location.href = 'login.html';
-            });
-        }
-
-        // Sayfa yüklenirken ve visibility değiştiğinde kontrol et
-        document.addEventListener('DOMContentLoaded', checkAuth);
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                checkAuth();
-            }
-        });
-    </script>
 </head>
 <body>
     <header class="main-header">
@@ -131,5 +94,14 @@
     </main>
     <script src="app.js"></script>
     <script src="script.js"></script>
+    <script>
+        // Sayfa yüklendiğinde ve görünürlük değiştiğinde auth kontrolü
+        document.addEventListener('DOMContentLoaded', () => Auth.guardRoute());
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                Auth.guardRoute();
+            }
+        });
+    </script>
 </body>
 </html>
