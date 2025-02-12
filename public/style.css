@@ -235,8 +235,8 @@ body {
 .translation-area {
     display: flex;
     min-height: 450px;
-    height: auto;
     border: 1px solid var(--border-color);
+    overflow: visible; /* Changed from hidden to visible */
 }
 
 .editor {
@@ -244,8 +244,9 @@ body {
     padding: 2rem;
     border-right: 1px solid var(--border-color);
     position: relative;
-    min-height: 450px;
-    height: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: visible; /* Changed from hidden to visible */
 }
 
 .editor:last-child {
@@ -254,15 +255,17 @@ body {
 
 .editor textarea {
     width: 100%;
-    min-height: 350px;
-    height: auto;
+    min-height: 400px;
     border: none;
-    resize: none;
+    resize: none; /* Disable manual resize */
     font-size: 1.125rem;
     line-height: 1.6;
     outline: none;
     color: var(--text-color);
-    overflow: hidden;
+    overflow: hidden; /* Hide scrollbars */
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    height: auto; /* Allow auto height */
 }
 
 .editor textarea::placeholder {
@@ -275,6 +278,10 @@ body {
 }
 
 .improve-button {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;  /* Changed from 17% */
+    transform: none; /* Removed transform */
     background: #fef9c3;
     color: #92400e;
     border: none;
@@ -286,30 +293,18 @@ body {
     align-items: center;
     gap: 0.5rem;
     transition: all 0.2s ease;
-    position: absolute;
-    bottom: 1.5rem;
-    left: 17%;
-    transform: translateX(-50%);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     z-index: 10;
-    width: fit-content;
-    margin: 0 auto;
 }
 
 .improve-button:hover {
     background: #fef08a;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
 }
 
 .improve-button:active {
-    transform: translateX(-50%) scale(0.98);
-}
-
-.improve-button svg {
-    width: 16px;
-    height: 16px;
-    color: #92400e;
-    flex-shrink: 0;
+    transform: translateY(0);
 }
 
 .glossary-switch {
@@ -477,22 +472,19 @@ input:checked + .slider:before {
         border-bottom: 1px solid var(--border-color);
     }
     .improve-button {
-        position: fixed;
-        bottom: 2rem;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 1rem 2rem;
-        font-size: 1rem;
-        white-space: nowrap;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        position: absolute; /* Changed from fixed */
+        bottom: 1rem;
+        left: 1rem;
+        transform: none;
+        width: auto;
+        margin: 0;
     }
 }
 
 @media (max-width: 480px) {
     .improve-button {
-        width: calc(100% - 2rem);
-        margin: 0 1rem;
-        border-radius: 1rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
     }
 }
 

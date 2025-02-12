@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const sourceText = sourceTextarea.value.trim();
         if (!sourceText) {
             targetTextarea.value = "";
-            lastNormalTranslation = ""; // Son çeviriyi temizle
+            lastNormalTranslation = "";
             return;
         }
 
@@ -183,20 +183,41 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (result.error) {
+                if (result.error.includes('Session expired')) {
+                    Auth.logout();
+                    return;
+                }
                 throw new Error(result.error);
             }
 
-            const translation = modifyText(result.translation);
-            targetTextarea.value = translation;
-            lastNormalTranslation = translation; // Son normal çeviriyi kaydet
+            // Burada tam metni gösterdiğimizden emin olalım
+            targetTextarea.value = result.translation;
+            autoResizeTextarea(targetTextarea); // Add this line
             
-            // Normal çeviride geçmişi sıfırla ve butonları gizle
+            // TextArea'nın scroll'unu en başa alalım
+            targetTextarea.scrollTop = 0;
+            
+            // TextArea'nın yüksekliğini içeriğe göre ayarlayalım
+            targetTextarea.style.height = 'auto';
+            targetTextarea.style.height = targetTextarea.scrollHeight + 'px';
+
+            lastNormalTranslation = result.translation;
+            
+            // Debug için konsola yazdıralım
+            console.log('Gelen tercüme uzunluğu:', result.translation.length);
+            console.log('TextArea değeri uzunluğu:', targetTextarea.value.length);
+            console.log('Tam tercüme:', result.translation);
+
             translationHistory = [];
             currentHistoryIndex = -1;
             hideHistoryButtons();
             updateHistoryButtons();
         } catch (error) {
             console.error('Translation error:', error);
+            if (error.message.includes('Session expired')) {
+                Auth.logout();
+                return;
+            }
             targetTextarea.value = 'Tarjima vaqtida xatolik yuz berdi.\n' + error.message;
         } finally {
             targetTextarea.classList.remove('translating');
@@ -338,13 +359,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Textarea'ların otomatik yükseklik ayarı için fonksiyon
     function autoResizeTextarea(textarea) {
+        // Reset height to auto first to get the correct scrollHeight
         textarea.style.height = 'auto';
+        // Set new height based on content
         textarea.style.height = textarea.scrollHeight + 'px';
     }
 
     // Her iki textarea için olay dinleyicileri
     const textareas = document.querySelectorAll('.editor textarea');
     textareas.forEach(textarea => {
+        // Initial resize
+        autoResizeTextarea(textarea);
+        
+        // Resize on input
         textarea.addEventListener('input', () => {
             autoResizeTextarea(textarea);
         });

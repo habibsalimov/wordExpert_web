@@ -1,7 +1,7 @@
 class MessageHandler {
     constructor() {
         // Backend API URL'i
-        this.apiUrl = 'http://wordexpert.uz/api';
+        this.apiUrl = 'http://localhost:5001/api';
         // API istekleri için default headers
         this.headers = {
             'Content-Type': 'application/json',
@@ -21,6 +21,13 @@ class MessageHandler {
 
     async sendMessage(message) {
         try {
+            // Token kontrolü yap
+            const isTokenValid = await Auth.checkTokenValidity();
+            if (!isTokenValid) {
+                Auth.logout();
+                throw new Error('Session expired. Please login again.');
+            }
+
             const response = await fetch(`${this.apiUrl}/translate`, {
                 method: 'POST',
                 headers: this.headers,
@@ -33,6 +40,10 @@ class MessageHandler {
             });
 
             if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    Auth.logout();
+                    throw new Error('Session expired. Please login again.');
+                }
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Translation failed');
             }
@@ -49,6 +60,9 @@ class MessageHandler {
             };
         } catch (error) {
             console.error('Translation request failed:', error);
+            if (error.message.includes('Session expired')) {
+                Auth.logout();
+            }
             return {
                 translation: null,
                 error: error.message || 'Translation service unavailable'
@@ -59,7 +73,7 @@ class MessageHandler {
 class Auth {
     static async loginUser(email, password) {
         try {
-            const response = await fetch('http://lwordexpert.uz/api/token', {
+            const response = await fetch('http://localhost:5001/api/token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -85,7 +99,7 @@ class Auth {
 
     static async refreshToken(refreshToken) {
         try {
-            const response = await fetch('http://wordexpert.uz/api/token/refresh', {
+            const response = await fetch('http://localhost:5001/api/token/refresh', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -106,8 +120,7 @@ class Auth {
     }
 
     static logout() {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+        localStorage.clear();
         window.location.href = 'login.html';
     }
 
@@ -116,27 +129,43 @@ class Auth {
         if (!token) return false;
 
         try {
-            const response = await fetch('http://wordexpert.uz/api/translate', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    text: '',
-                    sourceLang: 'eng_Latn',
-                    targetLang: 'uzn_Latn'
-                })
-            });
-
-            if (response.status === 401) {
-                localStorage.clear();
+            // Önce token'ın süresini kontrol et
+            const tokenData = this.parseJwt(token);
+            if (tokenData.exp * 1000 < Date.now()) {
+                // Token süresi dolmuş, refresh token ile yenilemeyi dene
+                const refreshToken = localStorage.getItem('refresh_token');
+                if (refreshToken) {
+                    try {
+                        const newTokens = await this.refreshToken(refreshToken);
+                        localStorage.setItem('access_token', newTokens.access);
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                }
                 return false;
             }
 
-            return true;
+            // Token hala geçerli, API kontrolü yap
+            const response = await fetch('http://localhost:5001/api/verify-token', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            return response.ok;
         } catch {
             return false;
+        }
+    }
+
+    static parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            return JSON.parse(window.atob(base64));
+        } catch {
+            return {};
         }
     }
 
@@ -144,7 +173,7 @@ class Auth {
         if (!window.location.pathname.includes('login.html')) {
             const isValid = await this.checkTokenValidity();
             if (!isValid) {
-                window.location.href = 'login.html';
+                this.logout();
             }
         }
     }
