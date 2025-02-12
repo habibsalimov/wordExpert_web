@@ -1,7 +1,7 @@
 class MessageHandler {
     constructor() {
         // Backend API URL'i
-        this.apiUrl = 'http://localhost:5001/api';
+        this.apiUrl = 'http://wordexpert.uz/api';
         // API istekleri için default headers
         this.headers = {
             'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ class MessageHandler {
 class Auth {
     static async loginUser(email, password) {
         try {
-            const response = await fetch('http://localhost:5001/api/token', {
+            const response = await fetch('http://wordexpert.uz/api/token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -99,7 +99,7 @@ class Auth {
 
     static async refreshToken(refreshToken) {
         try {
-            const response = await fetch('http://localhost:5001/api/token/refresh', {
+            const response = await fetch('http://wordexpert.uz/api/token/refresh', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -147,7 +147,7 @@ class Auth {
             }
 
             // Token hala geçerli, API kontrolü yap
-            const response = await fetch('http://localhost:5001/api/verify-token', {
+            const response = await fetch('http://wordexpert.uz/api/verify-token', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
